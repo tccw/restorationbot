@@ -1,1 +1,4 @@
 /praw.ini
+/.env
+/restorationbot-credentials.json
+/config.py
