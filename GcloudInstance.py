@@ -4,6 +4,7 @@ import os
 import time
 import pickle
 from config import ZONE, PROJECT_NAME, VM_NAME
+from pathlib import Path
 
 
 class GcloudInstance:
@@ -67,25 +68,35 @@ class GcloudInstance:
                 zone=self.zone,
                 instance=self.name).execute()
 
-    def upload_file(self, data):
+    def upload_file(self, data=None, to_pickle=False, source_filename=None):
         """
         Uploads a picklable file to the gcloud bucket attached to this object
-        :param data:
+        :param source_filename: name of the file to be uploaded
+        :param to_pickle: boolean indicator, default is False
+        :param data: Any data to be uploaded
         :return: int code 1 for success, -1 for failure
         """
 
         try:
-            source_filename = 'tmp_input/input_data.pkl'
-            with open(source_filename, 'wb') as f:
-                pickle.dump(data, f)
+            if source_filename is None:
+                source_filename = 'tmp_input/input_data.pkl'
+            if to_pickle and data is not None:
+                with open(source_filename, 'wb') as f:
+                    pickle.dump(data, f)
+            dest_and_src_path = str(Path('tmp_input', source_filename))
 
-            blob = self.bucket.blob('tmp_input/input_data.pkl')
+            blob = self.bucket.blob(dest_and_src_path)
 
-            blob.upload_from_filename(source_filename)
+            blob.upload_from_filename(dest_and_src_path)
             return 1
         except Exception as e:
             print(e)
             return -1
+
+    def upload_dir(self, rootdir: str):
+        paths = [str(path) for path in Path(rootdir).rglob('*') if '.gitignore' not in path.stem]
+        for path in paths:
+            self.upload_file(source_filename=path.split('/')[-1])
 
     def download_from_bucket(self, dest_file_name: str, source_blob_name: str):
         try:
