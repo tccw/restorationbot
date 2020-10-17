@@ -1,0 +1,7 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+
+# https://stackoverflow.com/questions/115983/how-can-i-add-an-empty-directory-to-a-git-repository
+# This provides the proper folder structure necessary for this app, without committing thousands of images
