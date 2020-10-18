@@ -3,7 +3,7 @@ import common
 
 from pathlib import Path
 from config import FAMILIAR_WORDS  # type: set
-from config import BOT_NAME, SUBREDDIT
+from config import BOT_NAME, SUBREDDIT, FILETYPE_SET
 
 DEFAULT_LONGEST_SIDE = 1024
 
@@ -61,8 +61,8 @@ class RedditBot:
 
     @staticmethod
     def _valid_title_and_image(title: str, url: str):
-        filetype_set = {'jpg', 'png'}
-        if url.split('.')[-1].lower() not in filetype_set:
+
+        if url.split('.')[-1].lower() not in FILETYPE_SET:
             return False
 
         # TODO: remove parens and other punctuation

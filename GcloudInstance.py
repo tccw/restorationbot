@@ -3,7 +3,7 @@ from google.cloud import storage
 import os
 import time
 import pickle
-from config import ZONE, PROJECT_NAME, VM_NAME
+from config import ZONE, PROJECT_NAME, VM_NAME, FILETYPE_SET
 from pathlib import Path
 
 
@@ -79,11 +79,11 @@ class GcloudInstance:
 
         try:
             if source_filename is None:
-                source_filename = 'tmp_input/input_data.pkl'
+                source_filename = 'raw_images/input_data.pkl'
             if to_pickle and data is not None:
                 with open(source_filename, 'wb') as f:
                     pickle.dump(data, f)
-            dest_and_src_path = str(Path('tmp_input', source_filename))
+            dest_and_src_path = str(Path('raw_images', source_filename))
 
             blob = self.bucket.blob(dest_and_src_path)
 
@@ -106,6 +106,14 @@ class GcloudInstance:
         except Exception as e:
             print(e)
             return -1
+
+    # TODO should eventually clean up the processed_images directory too
+    def clean_up_bucket(self) -> None:
+        bucket_files = self.list_bucket_objects()
+        for file in bucket_files:
+            if file.name.startswith('raw_images/') and file.name.lower().endswith(tuple(FILETYPE_SET)):
+                blob = self.bucket.blob(file.name)
+                blob.delete()
 
     def list_bucket_objects(self) -> [str]:
         return list(self._storage_client.list_blobs(self.bucket_name))
