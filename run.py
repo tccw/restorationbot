@@ -17,12 +17,12 @@ print('waiting...')
 
 
 # start up the VM. This will run the startup script, copying and processing all the images
-gcloud.start_instance()
+# gcloud.start_instance()
 
 # stop the VM to save money and run the shutdown script to copy processed files to the bucket
-gcloud.stop_instance()
+# gcloud.stop_instance()
 # download the processed images to the local machine with verification
-gcloud.download_from_bucket()
+gcloud.download_dir('processed_images/')
 
 # clean up the raw_images folder on the bucket and
 gcloud.clean_up_bucket()

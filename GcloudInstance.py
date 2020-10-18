@@ -5,6 +5,7 @@ import time
 import pickle
 from config import ZONE, PROJECT_NAME, VM_NAME, FILETYPE_SET
 from pathlib import Path
+from common import delete_dir_contents
 
 
 class GcloudInstance:
@@ -68,7 +69,20 @@ class GcloudInstance:
                 zone=self.zone,
                 instance=self.name).execute()
 
-    def upload_file(self, data=None, to_pickle=False, source_filename=None):
+    def upload_dir(self, rootdir: str):
+        paths = [str(path) for path in Path(rootdir).rglob('*') if '.gitignore' not in path.stem]
+        for path in paths:
+            self.upload_to_bucket(source_filename=path.split('/')[-1])
+
+    def download_dir(self, remote_dir: str):
+        Path(remote_dir).mkdir(parents=True, exist_ok=True)
+        delete_dir_contents(remote_dir)
+        bucket_files = self.list_bucket_objects()
+        for file in bucket_files:
+            if file.name.startswith(remote_dir) and file.name.lower().endswith(tuple(FILETYPE_SET)):
+                self.download_from_bucket(file.name, file.name)
+
+    def upload_to_bucket(self, data=None, to_pickle=False, source_filename=None):
         """
         Uploads a picklable file to the gcloud bucket attached to this object
         :param source_filename: name of the file to be uploaded
@@ -93,11 +107,6 @@ class GcloudInstance:
             print(e)
             return -1
 
-    def upload_dir(self, rootdir: str):
-        paths = [str(path) for path in Path(rootdir).rglob('*') if '.gitignore' not in path.stem]
-        for path in paths:
-            self.upload_file(source_filename=path.split('/')[-1])
-
     def download_from_bucket(self, dest_file_name: str, source_blob_name: str):
         try:
             blob = self.bucket.blob(source_blob_name)
@@ -111,7 +120,8 @@ class GcloudInstance:
     def clean_up_bucket(self) -> None:
         bucket_files = self.list_bucket_objects()
         for file in bucket_files:
-            if file.name.startswith('raw_images/') and file.name.lower().endswith(tuple(FILETYPE_SET)):
+            if file.name.startswith(('raw_images/', 'processed_images/')) \
+                    and file.name.lower().endswith(tuple(FILETYPE_SET)):
                 blob = self.bucket.blob(file.name)
                 blob.delete()
 

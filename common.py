@@ -61,3 +61,7 @@ def image_from_url(url: str):
     return Image.open(response)
 
 
+def delete_dir_contents(rootdir: Path):
+    old_paths = [path for path in Path(rootdir).rglob("*") if '.gitignore' not in path.stem]
+    for path in old_paths:
+        path.unlink()

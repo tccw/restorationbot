@@ -83,7 +83,7 @@ class RedditBot:
     #         img.save(filename)
 
     def dump_images(self, dumpdir: str):
-        self._delete_dir_contents(dumpdir)
+        common.delete_dir_contents(dumpdir)
         for k, v in self.submissions.items():
             img = common.resize_from_memory(common.image_from_url(v.url), DEFAULT_LONGEST_SIDE)
             if img.format is None:
@@ -93,8 +93,3 @@ class RedditBot:
             filename = Path(dumpdir, k + '.' + extension)
             img.save(filename)
 
-    @staticmethod
-    def _delete_dir_contents(rootdir: Path):
-        old_paths = [path for path in Path(rootdir).rglob("*") if '.gitignore' not in path.stem]
-        for path in old_paths:
-            path.unlink()
