@@ -4,7 +4,7 @@ import itertools
 import subprocess
 from urllib.request import urlopen
 import numpy as np
-import io
+import requests
 
 
 def bash_command(command_list: [str]) -> None:
@@ -56,8 +56,41 @@ def _flatten_list(ls: [[str]]) -> [str]:
     return list(itertools.chain.from_iterable(ls))
 
 
-def image_from_url(url: str):
+def image_from_url(url: str) -> Image:
     response = urlopen(url)
     return Image.open(response)
 
 
+def delete_dir_contents(rootdir: Path):
+    old_paths = [path for path in Path(rootdir).rglob("*") if '.gitignore' not in path.stem]
+    for path in old_paths:
+        path.unlink()
+
+
+def format_comment(user: str, imgur_link: str, post_id: str):
+    main_message = """
+    Hey, /u/{}! I think that this might be a photo of one of your family members!
+    
+    I've done my best to restore your photo here: {}
+    
+    """
+    survey = _survey(post_id)
+    footer = "<font size = 2>(git)[https://github.com/tccw/restorationbot] |" + \
+             "[how](https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life)</font>"
+    return main_message + survey + footer
+
+
+def _survey(post_id: str) -> str:
+    user = 'restoration-bot'
+    return """
+    Let me know how I did! \n
+    [Great!]({}) | [Not so great...]({}) | [So bad you hurt my feelings!]({})
+    """.format(_dm_builder(user, 'Great!', post_id),
+               _dm_builder(user, 'Not so great...', post_id),
+               _dm_builder(user, 'So bad you hurt my feelings!', post_id))
+
+
+def _dm_builder(to_user: str, message: str, post_id: str) -> str:
+    formatted_message: str = ''.join(s + '%20' for s in message.split(' '))
+    base_url = 'https://np.reddit.com/message/compose/?to={}-bot&subject=ID%20{}&message='.format(to_user, post_id)
+    return base_url + formatted_message
