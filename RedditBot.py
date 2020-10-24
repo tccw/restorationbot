@@ -23,28 +23,11 @@ class RedditBot:
     def process_queue_len(self) -> int:
         return len(self.submissions)
 
-    # def monitor_posts(self) -> None:
-    #     for submission in self.subreddit.hot(limit=150):
-    #         if self._valid_title_and_image(submission.title, submission.url):
-    #             self.submissions[submission.id] = self._create_dict(submission)
-    #     self._bot_action_submission(self.submissions)
-
     def monitor_posts(self) -> None:
         for submission in self.subreddit.hot(limit=150):
             if self._valid_title_and_image(submission.title, submission.url):
                 self.submissions[submission.id] = submission
         self._bot_action_submission(self.submissions)
-
-    # @staticmethod
-    # def _create_dict(submission: praw.Reddit) -> dict:
-    #     return {
-    #         'author': submission.author.name,
-    #         'title': submission.title,
-    #         'created': submission.created,
-    #         'subreddit': submission.subreddit.url,
-    #         'image_url': submission.url,
-    #         'permalink': 'reddit.com' + submission.permalink,
-    #     }
 
     @staticmethod
     def _check_comment_condition(comment: 'praw Comment'):
@@ -70,17 +53,6 @@ class RedditBot:
         if len(s.intersection(FAMILIAR_WORDS)) < 2:  # want at least two of the familial or familiar words together
             return False
         return True
-    #
-    # def dump_images(self, dumpdir: str):
-    #     self._delete_dir_contents(dumpdir)
-    #     for k, v in self.to_process_dict.items():
-    #         img = common.resize_from_memory(common.image_from_url(v['image_url']), DEFAULT_LONGEST_SIDE)
-    #         if img.format is None:
-    #             extension = 'JPG'
-    #         else:
-    #             extension = img.format
-    #         filename = Path(dumpdir, k + '.' + extension)
-    #         img.save(filename)
 
     def dump_images(self, dumpdir: str):
         common.delete_dir_contents(dumpdir)
