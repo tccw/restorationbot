@@ -1,4 +1,5 @@
 import pickle
+from CustomExceptions import *
 from pathlib import Path
 from google.cloud import storage
 
@@ -16,7 +17,11 @@ class Bucket:
     def upload_dir(self, rootdir: str):
         paths = [str(path) for path in Path(rootdir).rglob('*') if '.gitignore' not in path.stem]
         for path in paths:
-            self.upload_to_bucket(source_filename=path.split('/')[-1])
+            try:
+                self.upload_to_bucket(source_filename=path.split('/')[-1])
+            except FailedToUploadException:
+                print("ERR: Failed to upload file {}".format(path))
+                continue
 
     def download_dir(self, remote_dir: str):
         Path(remote_dir).mkdir(parents=True, exist_ok=True)
@@ -24,7 +29,11 @@ class Bucket:
         bucket_files = self.list_bucket_objects()
         for file in bucket_files:
             if file.name.startswith(remote_dir) and file.name.lower().endswith(tuple(FILETYPE_SET)):
-                self.download_from_bucket(file.name, file.name)
+                try:
+                    self.download_from_bucket(file.name, file.name)
+                except FailedToDownloadException:
+                    print('ERR: Failed to download {}'.format(file))
+                    continue
 
     def upload_to_bucket(self, data=None, to_pickle=False, source_filename=None):
         """
@@ -41,24 +50,21 @@ class Bucket:
             if to_pickle and data is not None:
                 with open(source_filename, 'wb') as f:
                     pickle.dump(data, f)
+
             dest_and_src_path = str(Path('raw_images', source_filename))
 
             blob = self.bucket.blob(dest_and_src_path)
 
             blob.upload_from_filename(dest_and_src_path)
-            return 1
-        except Exception as e:
-            print(e)
-            return -1
+        except Exception:
+            raise FailedToUploadException
 
     def download_from_bucket(self, dest_file_name: str, source_blob_name: str):
         try:
             blob = self.bucket.blob(source_blob_name)
             blob.download_to_filename(dest_file_name)
-            return 1
-        except Exception as e:
-            print(e)
-            return -1
+        except Exception:
+            raise FailedToDownloadException
 
     # TODO should eventually clean up the processed_images directory too
     def clean_up_bucket(self) -> None:

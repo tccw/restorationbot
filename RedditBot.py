@@ -1,5 +1,6 @@
 import praw
 import common
+import string
 
 from pathlib import Path
 from config import FAMILIAR_WORDS  # type: set
@@ -31,7 +32,7 @@ class RedditBot:
 
     @staticmethod
     def _check_comment_condition(comment: 'praw Comment'):
-        comment.reply()
+        # comment.reply()
         pass  # stub
 
     @staticmethod
@@ -48,9 +49,9 @@ class RedditBot:
         if url.split('.')[-1].lower() not in FILETYPE_SET:
             return False
 
-        # TODO: remove parens and other punctuation
+        title = title.translate(str.maketrans('', '', string.punctuation))  # remove english punctuation
         s = set(title.split(' '))  # O(2n)
-        if len(s.intersection(FAMILIAR_WORDS)) < 2:  # want at least two of the familial or familiar words together
+        if len(s.intersection(FAMILIAR_WORDS)) < 2:  # want at least two of the familial or familiar words in title
             return False
         return True
 
