@@ -25,10 +25,10 @@ class RedditBot:
         return len(self.submissions)
 
     def monitor_posts(self) -> None:
-        for submission in self.subreddit.hot(limit=150):
-            if self._valid_title_and_image(submission.title, submission.url):
+        for submission in self.subreddit.hot(limit=3):
+            if self._valid_title_and_image(submission):
                 self.submissions[submission.id] = submission
-        self._bot_action_submission(self.submissions)
+
 
     @staticmethod
     def _check_comment_condition(comment: 'praw Comment'):
@@ -39,9 +39,19 @@ class RedditBot:
     def _bot_action_comment(comment: 'praw Comment'):
         pass  # stub
 
-    @staticmethod
-    def _bot_action_submission(valid_submissions):
-        pass  # stub
+    def reply_all_subs(self, imgur_client):
+        self._bot_reply_submissions(imgur_client)
+
+    def _bot_reply_submissions(self, client):
+        upload_links = common.upload_images_imgur(client, 'processed_images', self.submissions)
+        for k in upload_links.keys():
+            try:
+                comment = common.format_comment(self.submissions[k].author.name,
+                                                upload_links[k], k)
+                self.submissions[k].reply(comment)
+            except:
+                # TODO can't post exception wait for however long I need to to post again
+                continue
 
     @staticmethod
     def _valid_title_and_image(title: str, url: str):

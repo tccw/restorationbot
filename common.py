@@ -74,8 +74,8 @@ I've done my best to restore your photo here: [{}]({})
     
     """.format(user, imgur_link, imgur_link)
     survey = _survey(post_id)
-    footer = "\n<font size = 2>[git](https://github.com/tccw/restorationbot) | " + \
-             "[how](https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life)</font>"
+    footer = "\n^([git](https://github.com/tccw/restorationbot) | " + \
+             "[how](https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life))"
     return main_message + survey + footer
 
 
@@ -83,6 +83,7 @@ def _survey(post_id: str) -> str:
     to_user = 'restoration-bot'
     return """
 I'm a bot, so I may have made some mistakes. Feel free to let me know how I did!
+
 [Great!]({}) | [Not so great...]({}) | [So bad you hurt my feelings!]({})
     """.format(_dm_builder(to_user, 'Great!', post_id),
                _dm_builder(to_user, 'Not so great...', post_id),
@@ -91,5 +92,5 @@ I'm a bot, so I may have made some mistakes. Feel free to let me know how I did!
 
 def _dm_builder(to_user: str, message: str, post_id: str) -> str:
     formatted_message: str = ''.join(s + '%20' for s in message.split(' '))
-    base_url = 'https://np.reddit.com/message/compose/?to={}-bot&subject=ID%20{}&message='.format(to_user, post_id)
+    base_url = 'https://np.reddit.com/message/compose/?to={}&subject=ID%20{}&message='.format(to_user, post_id)
     return base_url + formatted_message
