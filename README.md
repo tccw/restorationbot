@@ -8,7 +8,7 @@ This bot searches through [/r/OldSchoolCool](oldschoolcool.reddit.com) for posts
 of their family. It then pulls the photo and attempts to restore it, posting the results as a comment.
 
 When posts which are determined to be of a user's family members are detected, the bot 
-spins up a gcloud VM running PyTorch and a single K80 GPU and processes the photos.
+spins up a gcloud VM running PyTorch and a single K80 GPU to processes the photos.
 
 To keep costs low the bot takes advantage of gcloud's preemptible VM instances and per-second billing in the following way:
  1. Detected familial posts have their images downloaded and dumped to a gcloud bucket.
