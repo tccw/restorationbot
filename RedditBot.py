@@ -25,10 +25,16 @@ class RedditBot:
         return len(self.submissions)
 
     def monitor_posts(self) -> None:
+<<<<<<< HEAD
         for submission in self.subreddit.hot(limit=3):
             if self._valid_title_and_image(submission):
                 self.submissions[submission.id] = submission
 
+=======
+        for submission in self.subreddit.hot(limit=25):
+            if self._valid_title_and_image(submission):
+                self.submissions[submission.id] = submission
+>>>>>>> 05fee88588bc7f76726b433bafcb63bf97899c11
 
     @staticmethod
     def _check_comment_condition(comment: 'praw Comment'):
@@ -50,16 +56,32 @@ class RedditBot:
                                                 upload_links[k], k)
                 self.submissions[k].reply(comment)
             except:
+<<<<<<< HEAD
                 # TODO can't post exception wait for however long I need to to post again
                 continue
+=======
+                #TODO can't post exception wait for however long I need to to post again
+                continue
+        pass  # stub
+>>>>>>> 05fee88588bc7f76726b433bafcb63bf97899c11
 
     @staticmethod
-    def _valid_title_and_image(title: str, url: str):
+    def _valid_title_and_image(submission):
+        title = submission.title
+        try:
+            url = submission.url if len({submission.url.lower()}.intersection(FILETYPE_SET)) > 0 else \
+                submission.media_metadata[list(submission.media_metadata.keys())[0]]['s']['u']
+        except AttributeError:
+            url = submission.url
+
+        # if (url.split('.')[-1].lower() not in FILETYPE_SET) and \
+        #         (('jpg' not in url) and ('png' not in url) and ('jpeg' not in url)):
+        #     return False
 
         if url.split('.')[-1].lower() not in FILETYPE_SET:
             return False
 
-        title = title.translate(str.maketrans('', '', string.punctuation))  # remove english punctuation
+        title = title.translate(str.maketrans('', '', string.punctuation)).lower()  # remove english punctuation
         s = set(title.split(' '))  # O(2n)
         if len(s.intersection(FAMILIAR_WORDS)) < 2:  # want at least two of the familial or familiar words in title
             return False
@@ -76,3 +98,6 @@ class RedditBot:
             filename = Path(dumpdir, k + '.' + extension)
             img.save(filename)
 
+    def print_titles(self):
+        for v in self.submissions.values():
+            print(v.title)

@@ -1,10 +1,12 @@
 from PIL import Image, ImageStat
+import praw
 from pathlib import Path
 import itertools
 import subprocess
 from urllib.request import urlopen
 import numpy as np
-import requests
+import time
+from imgur_python import Imgur
 
 
 def bash_command(command_list: [str]) -> None:
@@ -45,7 +47,7 @@ def _new_dims(img: Image, longest_side: int) -> (int, int):
 
 
 def _get_image_paths(rdir: str) -> [str]:
-    extensions = {'*.png', '*.jpg'}
+    extensions = {'*.png', '*.jpg', '*.JPEG', '*.JPG', '*.PNG'}
     paths = []
     for ext in extensions:
         paths.append([str(p) for p in Path(rdir).rglob(ext)])
@@ -94,3 +96,28 @@ def _dm_builder(to_user: str, message: str, post_id: str) -> str:
     formatted_message: str = ''.join(s + '%20' for s in message.split(' '))
     base_url = 'https://np.reddit.com/message/compose/?to={}&subject=ID%20{}&message='.format(to_user, post_id)
     return base_url + formatted_message
+
+
+def upload_images_imgur(client, rootdir, submissions) -> dict:
+    link_dict = {}
+    paths = _get_image_paths(rootdir)
+    for path in paths:
+        try:
+            # TODO Making too many requests here
+            key = str(path).split('/')[-1].split('.')[0]
+            title = "/u/{}'s restored family photo".format(submissions[key].author.name)
+            link_dict[key] = _post_single_image(client, path, title, submissions[key].url)
+            time.sleep(1)
+        except:
+            continue
+    return link_dict
+
+
+def _post_single_image(client: Imgur, image_path, title, description=None):
+    """
+    Limit to 1250 POST requests per hour and 12500 per day
+    """
+    image = client.image_upload(image_path, title, description)
+    # album_id = client.album_get('Family Photos')['response']['data']['id']
+    # client.album_add(album_id, image['response']['data']['id'])
+    return image['response']['data']['link']
