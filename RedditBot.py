@@ -25,16 +25,9 @@ class RedditBot:
         return len(self.submissions)
 
     def monitor_posts(self) -> None:
-<<<<<<< HEAD
         for submission in self.subreddit.hot(limit=3):
             if self._valid_title_and_image(submission):
                 self.submissions[submission.id] = submission
-
-=======
-        for submission in self.subreddit.hot(limit=25):
-            if self._valid_title_and_image(submission):
-                self.submissions[submission.id] = submission
->>>>>>> 05fee88588bc7f76726b433bafcb63bf97899c11
 
     @staticmethod
     def _check_comment_condition(comment: 'praw Comment'):
@@ -56,14 +49,9 @@ class RedditBot:
                                                 upload_links[k], k)
                 self.submissions[k].reply(comment)
             except:
-<<<<<<< HEAD
                 # TODO can't post exception wait for however long I need to to post again
                 continue
-=======
-                #TODO can't post exception wait for however long I need to to post again
-                continue
-        pass  # stub
->>>>>>> 05fee88588bc7f76726b433bafcb63bf97899c11
+
 
     @staticmethod
     def _valid_title_and_image(submission):
