@@ -1,5 +1,7 @@
 # [restorationbot](https://www.reddit.com/user/restoration-bot)
 
+<center><img src=https://i.imgur.com/Hl5LuMz.jpg width="70%"></center>
+
 A reddit bot for automated photo restoration using Microsoft Research's 
 [deep latent space translation Old Photo Restoration project](https://github.com/microsoft/Bringing-Old-Photos-Back-to-Life).
 Unlike many Reddit bots, this bot does not currently respond to bot summons/username mentions.
