@@ -19,8 +19,7 @@ To keep costs low the bot takes advantage of gcloud's preemptible VM instances a
  them back to the bucket, removes the files from the VM, and then shuts down.
  
 This process typically takes ~ 2-3 minutes. The current (Oct 2020) rate for a pre-emptible N1 machines with 
-7.5 GB of RAM and 1 K80 GPU is about 16￠ per hour. Additionally, Google offers per-second billing for their VMs, 
-with an extremely low rate for terminated instances.
+7.5 GB of RAM and 1 K80 GPU is about 16￠ per hour (and per-second billing) with an extremely low rate for terminated instances.
 
 #### Issues:
 - The MS model is a research project and is not built to have production grade efficiency so a GPU is currently a necessity.
