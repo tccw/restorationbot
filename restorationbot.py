@@ -11,10 +11,14 @@ from config import ZONE, PROJECT_NAME, VM_NAME, FAMILIAR_WORDS, BOT_NAME, FILETY
 from CustomExceptions import *
 
 # Constants
-DEFAULT_LONGEST_SIDE = 1024
+LONG_SIDE_NO_SCRATCH = 1024
+LONG_SIDE_SCRATCH = 600
 
 
 class RedditBot:
+    """
+    A container for a praw Reddit object
+    """
 
     def __init__(self, bot_name=BOT_NAME, sub=SUBREDDIT):
         self.reddit = praw.Reddit(bot_name)
@@ -57,15 +61,14 @@ class RedditBot:
         else:
             try:
                 k = next(iter(links.keys()))
-                comment = common.format_comment(self.submissions[k].author.name,
-                                                links[k], k)
+                comment = common.format_comment(self.submissions[k].author.name, links[k], k)
                 self.submissions[k].reply(comment)
                 links.pop(k)
-                self._bot_reply_submissions_helper(links)
-            except praw.errors.RateLimiExceeded as e:
+                self._bot_reply_submissions_helper(links)  # call again with 1 elem smaller dict
+            except praw.errors.RateLimitExceeded as e:
                 print('Sleeping for {} seconds due to over-posting.'.format(e.sleep_time))
                 time.sleep(e.sleep_time)
-                self._bot_reply_submissions_helper(links)  # call again with a 1 elem smaller dict
+                self._bot_reply_submissions_helper(links)  # call again with the same dict to retry posting
             except praw.errors.Forbidden as e:
                 print('{} - possibly banned from {}'.format(e.code, self.subreddit))
                 links.pop(next(iter(links.keys())))
@@ -96,7 +99,7 @@ class RedditBot:
     def dump_images(self, dumpdir: str):
         common.delete_dir_contents(dumpdir)
         for k, v in self.submissions.items():
-            img = common.resize_from_memory(common.image_from_url(v.url), DEFAULT_LONGEST_SIDE)
+            img = common.resize_from_memory(common.image_from_url(v.url), LONG_SIDE_NO_SCRATCH)
             if img.format is None:
                 extension = 'JPG'
             else:
@@ -112,6 +115,9 @@ class RedditBot:
 # Gcloud Resources
 
 class Bucket:
+    """
+    A container for a gcloud.storage bucket with support for upload/download/removal of files
+    """
 
     def __init__(self, bucket_name: str):
         self._storage_client = storage.Client()
@@ -184,6 +190,10 @@ class Bucket:
 
 
 class ComputeInstance:
+    """
+    A container for a gcloud compute instance with basic functionality for finding, starting, stopping,
+     and deleting the instance. Does not currently support instance creation.
+    """
 
     def __init__(self, service_name: str, version: str):
         self.compute = discovery.build(service_name, version)  # Google API resource object
