@@ -78,8 +78,10 @@ class RedditBot:
     def _valid_title_and_image(submission):
         title = submission.title
         try:
-            url = submission.url if len({submission.url.lower()}.intersection(FILETYPE_SET)) > 0 else \
-                submission.media_metadata[list(submission.media_metadata.keys())[0]]['s']['u']
+            for v in submission.media_metadata.values():
+                # do some stuff
+            # url = submission.url if len({submission.url.lower()}.intersection(FILETYPE_SET)) > 0 else \
+            #     submission.media_metadata[list(submission.media_metadata.keys())[0]]['s']['u']
         except AttributeError:
             url = submission.url
 
