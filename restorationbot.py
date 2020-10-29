@@ -35,7 +35,7 @@ class RedditBot:
 
     # TODO: mark a post as read/viewed if replied. Then add this as a check to _valid_title_and_image()
     def monitor_posts(self) -> None:
-        for submission in self.subreddit.hot(limit=3):
+        for submission in self.subreddit.hot(limit=10):
             if self._valid_title_and_image(submission):
                 self.submissions[submission.id] = submission
 

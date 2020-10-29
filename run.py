@@ -10,7 +10,7 @@ if __name__ == '__main__':
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CREDENTIALS
 
     # initialize working objects
-    reddit = RedditBot()
+    reddit = RedditBot(sub='testingground4bots')
     bucket = Bucket(BUCKET)
     gcloud = ComputeInstance('compute', 'v1')
     gcloud.get_existing_instance()
@@ -29,6 +29,7 @@ if __name__ == '__main__':
     gcloud.stop_instance()
     # download the processed images to the local machine with verification
     bucket.download_dir('processed_images/')
+    reddit.reply_all_subs()
 
     # clean up the raw_images folder on the bucket and
     bucket.clean_up_bucket()
