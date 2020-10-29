@@ -84,7 +84,7 @@ I've done my best to restore your photo here: [{}]({})
 def _survey(post_id: str) -> str:
     to_user = 'restoration-bot'
     return """
-I'm a bot, so I may have made some mistakes. Feel free to let me know how I did!
+I'm a bot, so I may have made some mistakes. Feel free to let me know how I did! [SCRATCH DETECTION TEST]
 
 [Great!]({}) | [Not so great...]({}) | [So bad you hurt my feelings!]({})
     """.format(_dm_builder(to_user, 'Great!', post_id),
@@ -107,7 +107,7 @@ def upload_images_imgur(client, rootdir, submissions) -> dict:
             key = str(path).split('/')[-1].split('.')[0]
             title = "/u/{}'s restored family photo".format(submissions[key].author.name)
             link_dict[key] = _post_single_image(client, path, title, submissions[key].url)
-            time.sleep(1)
+            time.sleep(2)
         except:
             continue
     return link_dict

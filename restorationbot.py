@@ -12,7 +12,7 @@ from CustomExceptions import *
 
 # Constants
 LONG_SIDE_NO_SCRATCH = 1024
-LONG_SIDE_SCRATCH = 600
+LONG_SIDE_SCRATCH = 500
 
 
 class RedditBot:
@@ -62,6 +62,7 @@ class RedditBot:
             try:
                 k = next(iter(links.keys()))
                 comment = common.format_comment(self.submissions[k].author.name, links[k], k)
+                time.sleep(2)
                 self.submissions[k].reply(comment)
                 links.pop(k)
                 self._bot_reply_submissions_helper(links)  # call again with 1 elem smaller dict
@@ -99,7 +100,7 @@ class RedditBot:
     def dump_images(self, dumpdir: str):
         common.delete_dir_contents(dumpdir)
         for k, v in self.submissions.items():
-            img = common.resize_from_memory(common.image_from_url(v.url), LONG_SIDE_NO_SCRATCH)
+            img = common.resize_from_memory(common.image_from_url(v.url), LONG_SIDE_SCRATCH)
             if img.format is None:
                 extension = 'JPG'
             else:
